@@ -65,8 +65,8 @@ int main() {
 
     SDL_Rect optionRect = {250, 360, 40, 40};
 
-    bool downPressed = false;
-    bool upPressed = false;
+    bool startChosen = true;
+    bool exitChosen = false;
 
 
     while (running) {
@@ -76,13 +76,16 @@ int main() {
                 running = false;
             } 
 
-            if (event.type == SDL_KEYDOWN) {
-                downPressed = upPressed = false;
-                if (event.key.keysym.sym == SDLK_DOWN) {
-                    downPressed = true;
-                } else if (event.key.keysym.sym == SDLK_UP) {
-                    upPressed = true;
-                }
+            if (event.type == SDL_KEYDOWN) {                
+                switch(event.key.keysym.sym) {
+                    case SDLK_DOWN: exitChosen = true; startChosen = false; break;
+                    case SDLK_UP: startChosen = true; exitChosen = false; break;
+                    case SDLK_RETURN: {
+                        if (exitChosen) {
+                            running = false;
+                        }
+                    }; break;
+                }   
             }
         }
         
@@ -95,13 +98,13 @@ int main() {
         SDL_RenderCopy(renderer, startGameNameTexture, NULL, &startGameNameDstrect);
         SDL_RenderCopy(renderer, exitNameTexture, NULL, &exitNameDstrect);
 
-        if (upPressed || downPressed) {
-            if (downPressed) {
-                SDL_Rect optionRect = {250, 460, 40, 40};
+        if (exitChosen || startChosen) {
+            if (startChosen) {
+                SDL_Rect optionRect = {250, 360, 40, 40};
                 SDL_SetRenderDrawColor(renderer, 73, 179, 243, 255);
                 SDL_RenderFillRect(renderer, &optionRect);
-            } else if (upPressed) {
-                SDL_Rect optionRect = {250, 360, 40, 40};
+            } else if (exitChosen) {
+                SDL_Rect optionRect = {250, 460, 40, 40};
                 SDL_SetRenderDrawColor(renderer, 73, 179, 243, 255);
                 SDL_RenderFillRect(renderer, &optionRect);
             }
@@ -113,10 +116,6 @@ int main() {
         SDL_RenderPresent(renderer);
 
     }
-
-
-    
-
 
     SDL_DestroyRenderer(renderer);
     TTF_CloseFont(font);
