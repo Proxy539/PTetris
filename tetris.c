@@ -90,6 +90,13 @@ void checkColision() {
 
 
         for (int i = 0; i < 4; i++) {
+
+            if (board[figureRowPos[i] + 1][figureColPos[i]] == -1) {
+                printf("Collides with the other figure\n");
+                hasCollision = true;
+                break;
+            }
+
             if (figureRowPos[i] == 19) {
                 hasCollision = true;
                 break;
