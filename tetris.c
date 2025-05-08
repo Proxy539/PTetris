@@ -8,14 +8,56 @@
 #define COLS 10
 
 int board[ROWS][COLS];
+bool hasFigure = false;
 
-void generate_figure() {
+void moveFigure() {
 
-    board[0][5] = 1;
-    board[1][4] = 1;
-    board[1][5] = 1;
-    board[1][6] = 1;
+    if (hasFigure) {
 
+        int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j]) {
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    count++;
+                    board[i][j] = 0;
+                }
+            }
+        }
+
+        if (count) {
+
+            for (int i = 0; i < 4; i++) {
+
+                printf("%d %d\n", figureRowPos[i], figureColPos[i]);
+
+                if (figureRowPos[i] + 1 >= ROWS) {
+                    hasFigure = false;
+                    return;
+                }
+
+                board[figureRowPos[i] + 1][figureColPos[i]] = 1;
+            }
+        }
+        
+    } else {
+
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                board[i][j] = 0;
+            }
+        }
+
+        board[0][5] = 1;
+        board[0][4] = 1;
+        board[1][5] = 1;
+        board[1][4] = 1;
+        hasFigure = true;
+    }
 }
 
 void draw_grid(SDL_Renderer *renderer) {
@@ -188,8 +230,10 @@ int main() {
 
         //Now draw your game scene (e.g. Tetris board, pieces, etc.)
         
-        generate_figure();
         draw_grid(renderer);
+        moveFigure();
+
+        SDL_Delay(200);
 
         //Present the new frame
 
