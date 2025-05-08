@@ -11,6 +11,9 @@
 int board[ROWS][COLS];
 bool newFigure = false;
 
+typedef enum { square, stick_horizontal, stick_vertical, z_left, z_up, triangle_up, triangle_right, triangle_buttom, triangle_left} Figure;
+Figure currentFigure;
+
 void generateSquare() {
     board[0][5] = 1;
     board[0][4] = 1;
@@ -39,15 +42,134 @@ void generateTriangle() {
     board[1][6] = 4;
 }
 
+void rotateFigure() {
+
+        int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        int figureColor;
+        bool hasCollision = false;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j] > 0) {
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    figureColor = board[i][j];
+                    board[i][j] = 0;
+                    count++;
+                }
+            }
+        } 
+
+
+        if (currentFigure == square) {
+            //do nothing. no point of rotate square
+        } else if (currentFigure == stick_horizontal) {
+            printf("move stick_horizontal\n");
+            //move horizontal -> vertical
+            int firstPointRow = figureRowPos[0];
+            int firstPointCol = figureColPos[0];
+
+            if (firstPointRow <= 16) {
+                figureRowPos[1] = firstPointRow + 1;
+                figureColPos[1] = firstPointCol;
+                
+                figureRowPos[2] = firstPointRow + 2;
+                figureColPos[2] = firstPointCol;
+    
+                figureRowPos[3] = firstPointRow + 3;
+                figureColPos[3] = firstPointCol;
+
+                currentFigure = stick_vertical;
+            } else {
+                printf("Can't move stick_horizontal -> stick_vertical: not enough space\n");
+            }
+
+        } else if (currentFigure == stick_vertical) {
+            //move vertical -> horizontal
+
+            printf("move stick_vertical -> stick_horizontal\n");
+            //move horizontal -> vertical
+            int firstPointRow = figureRowPos[0];
+            int firstPointCol = figureColPos[0];
+
+            figureRowPos[1] = firstPointRow;
+            figureColPos[1] = firstPointCol + 1;
+
+            figureRowPos[2] = firstPointRow;
+            figureColPos[2] = firstPointCol + 2;
+
+            figureRowPos[3] = firstPointRow;
+            figureColPos[3] = firstPointCol + 3;
+
+            currentFigure = stick_horizontal;
+
+        } else if (currentFigure == z_left) {
+            //move z_left -> z_up
+
+            figureRowPos[2] = figureRowPos[2] - 2;
+
+            figureColPos[3] = figureColPos[3] - 2;
+
+            currentFigure = z_up;
+
+        } else if (currentFigure == z_up) {
+            //move z_up -> z_left
+
+            figureRowPos[0] = figureRowPos[0] + 2;
+            figureColPos[3] = figureColPos[3] + 2;
+
+            currentFigure = z_left;
+
+        } else if (currentFigure == triangle_up) {
+            //move triangle_up -> triangle_right
+
+            figureRowPos[0] += 2;
+
+            figureRowPos[1]--;
+            figureColPos[1]++;
+            
+            currentFigure = triangle_right;
+
+        } else if (currentFigure == triangle_right) {
+            //move triangle_right -> triangle_botom
+
+            figureRowPos[0]++;
+            figureColPos[0]--;
+
+            currentFigure = triangle_buttom;
+
+        } else if (currentFigure == triangle_buttom) {
+            //move triangle_bottom -> triangle_left
+
+            figureRowPos[2]--;
+            figureColPos[2]--;
+
+            currentFigure = triangle_left;
+        } else if (currentFigure == triangle_left) {
+            //move triangle_left -> triangle_up
+        
+            figureRowPos[3]--;
+            figureColPos[3]++;
+
+            currentFigure = triangle_up;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            board[figureRowPos[i]][figureColPos[i]] = figureColor;
+        }    
+}
+
 void generateNewFigure() {
 
     int figureNumber = rand() % 4;
 
     switch(figureNumber) {
-        case 0: generateSquare(); break;
-        case 1: generateStick(); break;
-        case 2: generateZ(); break;
-        case 3: generateTriangle(); break; 
+        case 0: generateSquare(); currentFigure = square; break;
+        case 1: generateStick(); currentFigure = stick_horizontal; break;
+        case 2: generateZ(); currentFigure = z_left; break;
+        case 3: generateTriangle(); currentFigure = triangle_up; break; 
     }
 }
 
@@ -379,6 +501,7 @@ int main() {
                 switch(event.key.keysym.sym) {
                     case SDLK_LEFT: moveLeft(); break;
                     case SDLK_RIGHT: moveRight(); break;
+                    case SDLK_UP: rotateFigure(); break;
                 }   
             }
         }
