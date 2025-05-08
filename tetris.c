@@ -19,24 +19,24 @@ void generateSquare() {
 }
 
 void generateStick() {
-    board[0][3] = 1;
-    board[0][4] = 1;
-    board[0][5] = 1;
-    board[0][6] = 1;
+    board[0][3] = 2;
+    board[0][4] = 2;
+    board[0][5] = 2;
+    board[0][6] = 2;
 }
 
 void generateZ() {
-    board[0][4] = 1;
-    board[0][5] = 1;
-    board[1][5] = 1;
-    board[1][6] = 1;
+    board[0][4] = 3;
+    board[0][5] = 3;
+    board[1][5] = 3;
+    board[1][6] = 3;
 }
 
 void generateTriangle() {
-    board[0][5] = 1;
-    board[1][4] = 1;
-    board[1][5] = 1;
-    board[1][6] = 1;
+    board[0][5] = 4;
+    board[1][4] = 4;
+    board[1][5] = 4;
+    board[1][6] = 4;
 }
 
 void moveFigure() {
@@ -48,10 +48,12 @@ void moveFigure() {
         int figureRowPos[4] = {0, 0, 0, 0};
         int figureColPos[4] = {0, 0, 0, 0};
         int count = 0;
+        int figureColor;
         
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
                 if (board[i][j]) {
+                    figureColor = board[i][j];
                     figureRowPos[count] = i;
                     figureColPos[count] = j;
                     count++;
@@ -67,7 +69,7 @@ void moveFigure() {
                     return;
                 }
 
-                board[figureRowPos[i] + 1][figureColPos[i]] = 1;
+                board[figureRowPos[i] + 1][figureColPos[i]] = figureColor;
             }
         }
         
@@ -106,7 +108,14 @@ void draw_grid(SDL_Renderer *renderer) {
             cell.h = CELL_SIZE;
 
             if (board[row][col]) {
-                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); //Fill color
+
+                switch(board[row][col]) {
+                    case 1: SDL_SetRenderDrawColor(renderer, 65,251,118, 255);break;
+                    case 2: SDL_SetRenderDrawColor(renderer, 65,61,255, 255); break;
+                    case 3: SDL_SetRenderDrawColor(renderer, 254,64,62, 255); break;
+                    case 4: SDL_SetRenderDrawColor(renderer, 237,244,72, 255); break;
+                }
+
                 SDL_RenderFillRect(renderer, &cell);
             }
 
