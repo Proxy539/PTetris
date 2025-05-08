@@ -9,7 +9,101 @@
 #define COLS 10
 
 int board[ROWS][COLS];
-bool hasFigure = false;
+bool newFigure = false;
+
+void generateSquare() {
+    board[0][5] = 1;
+    board[0][4] = 1;
+    board[1][5] = 1;
+    board[1][4] = 1;
+}
+
+void generateStick() {
+    board[0][3] = 2;
+    board[0][4] = 2;
+    board[0][5] = 2;
+    board[0][6] = 2;
+}
+
+void generateZ() {
+    board[0][4] = 3;
+    board[0][5] = 3;
+    board[1][5] = 3;
+    board[1][6] = 3;
+}
+
+void generateTriangle() {
+    board[0][5] = 4;
+    board[1][4] = 4;
+    board[1][5] = 4;
+    board[1][6] = 4;
+}
+
+void generateNewFigure() {
+
+    int figureNumber = rand() % 4;
+
+    switch(figureNumber) {
+        case 0: generateSquare(); break;
+        case 1: generateStick(); break;
+        case 2: generateZ(); break;
+        case 3: generateTriangle(); break; 
+    }
+}
+
+bool checkIfNewFigureNeeded() {
+
+    bool newFigureNeeded = true;
+
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+
+            if (board[i][j] > 0) {
+                newFigureNeeded = false;
+            }
+
+        }
+    }
+
+
+    return newFigureNeeded;
+
+}
+
+void checkColision() {
+
+        int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        int figureColor;
+        bool hasCollision = false;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j] > 0) {
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    count++;
+                }
+            }
+        } 
+
+
+        for (int i = 0; i < 4; i++) {
+            if (figureRowPos[i] == 19) {
+                hasCollision = true;
+                break;
+            }
+        }
+
+        if (hasCollision) {
+            for (int i = 0; i < 4; i++) {
+                board[figureRowPos[i]][figureColPos[i]] = -1; //lock collided figure
+            }
+        }
+}
+
+
 
 void moveLeft() {
 
@@ -59,89 +153,29 @@ void moveRight() {
         } 
 }
 
-void generateSquare() {
-    board[0][5] = 1;
-    board[0][4] = 1;
-    board[1][5] = 1;
-    board[1][4] = 1;
-}
+void moveDown() {
 
-void generateStick() {
-    board[0][3] = 2;
-    board[0][4] = 2;
-    board[0][5] = 2;
-    board[0][6] = 2;
-}
-
-void generateZ() {
-    board[0][4] = 3;
-    board[0][5] = 3;
-    board[1][5] = 3;
-    board[1][6] = 3;
-}
-
-void generateTriangle() {
-    board[0][5] = 4;
-    board[1][4] = 4;
-    board[1][5] = 4;
-    board[1][6] = 4;
-}
-
-void moveFigure() {
-
-    srand(time(NULL));
-
-    if (hasFigure) {
-
-        int figureRowPos[4] = {0, 0, 0, 0};
-        int figureColPos[4] = {0, 0, 0, 0};
-        int count = 0;
-        int figureColor;
-        
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (board[i][j]) {
-                    figureColor = board[i][j];
-                    figureRowPos[count] = i;
-                    figureColPos[count] = j;
-                    count++;
-                    board[i][j] = 0;
-                }
-            }
-        }
-
-        if (count) {
-            for (int i = 0; i < 4; i++) {
-                if (figureRowPos[i] + 1 >= ROWS) {
-                    hasFigure = false;
-                    return;
-                }
-
-                board[figureRowPos[i] + 1][figureColPos[i]] = figureColor;
-            }
-        }
-        
-    } else {
-
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
+    int figureRowPos[4] = {0, 0, 0, 0};
+    int figureColPos[4] = {0, 0, 0, 0};
+    int count = 0;
+    int figureColor;
+    
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (board[i][j] > 0) {
+                figureColor = board[i][j];
+                figureRowPos[count] = i;
+                figureColPos[count] = j;
+                count++;
                 board[i][j] = 0;
             }
         }
-
-        int figureNumber = rand() % 4;
-        printf("%d\n", figureNumber);
-
-        switch(figureNumber) {
-            case 0: generateSquare(); break;
-            case 1: generateStick(); break;
-            case 2: generateZ(); break;
-            case 3: generateTriangle(); break; 
-        }
-
-
-        hasFigure = true;
     }
+
+    for (int i = 0; i < 4; i++) {
+        board[figureRowPos[i] + 1][figureColPos[i]] = figureColor;
+    }
+
 }
 
 void draw_grid(SDL_Renderer *renderer) {
@@ -158,6 +192,7 @@ void draw_grid(SDL_Renderer *renderer) {
             if (board[row][col]) {
 
                 switch(board[row][col]) {
+                    case -1: SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); break;
                     case 1: SDL_SetRenderDrawColor(renderer, 65,251,118, 255);break;
                     case 2: SDL_SetRenderDrawColor(renderer, 65,61,255, 255); break;
                     case 3: SDL_SetRenderDrawColor(renderer, 254,64,62, 255); break;
@@ -175,6 +210,8 @@ void draw_grid(SDL_Renderer *renderer) {
 }
 
 int main() {
+
+    srand(time(NULL));
 
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0 || TTF_Init() != 0) {
@@ -255,7 +292,6 @@ int main() {
                         if (exitChosen) {
                             menuRunning = false;
                         } else if (startChosen) {
-                            printf("Start the game\n");
                             gameRunning = true;
                             menuRunning = false;
                         }
@@ -322,8 +358,13 @@ int main() {
 
         //Now draw your game scene (e.g. Tetris board, pieces, etc.)
         
+        if (checkIfNewFigureNeeded()) {
+            generateNewFigure();
+        }
+
         draw_grid(renderer);
-        moveFigure();
+        moveDown();
+        checkColision();
 
         SDL_Delay(200);
 
