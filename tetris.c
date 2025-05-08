@@ -3,6 +3,25 @@
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 
+#define CELL_SIZE 50
+#define ROWS 20
+#define COLS 10
+
+void draw_grid(SDL_Renderer *renderer) {
+    //Set grid line color 
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+
+    //Draw vertical lines 
+    for (int i = 0; i <= COLS; i++) {
+        SDL_RenderDrawLine(renderer, i * CELL_SIZE, 0, i * CELL_SIZE, ROWS * CELL_SIZE);
+    }
+
+    //Draw horizontal lines
+    for (int i = 0; i <= ROWS; i++) {
+        SDL_RenderDrawLine(renderer, 0, i * CELL_SIZE, COLS * CELL_SIZE, i * CELL_SIZE);
+    }
+}
+
 int main() {
 
 
@@ -16,8 +35,8 @@ int main() {
         "Tetris",
         SDL_WINDOWPOS_CENTERED, 
         SDL_WINDOWPOS_CENTERED,
-        800, 
-        600,
+        1000, 
+        1000,
         SDL_WINDOW_SHOWN
     );
 
@@ -34,7 +53,8 @@ int main() {
         return 1;
     }
 
-    bool running = true;
+    bool menuRunning = true;
+    bool gameRunning = false;
     SDL_Event event;
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
@@ -69,11 +89,11 @@ int main() {
     bool exitChosen = false;
 
 
-    while (running) {
+    while (menuRunning) {
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-                running = false;
+                menuRunning = false;
             } 
 
             if (event.type == SDL_KEYDOWN) {                
@@ -82,7 +102,11 @@ int main() {
                     case SDLK_UP: startChosen = true; exitChosen = false; break;
                     case SDLK_RETURN: {
                         if (exitChosen) {
-                            running = false;
+                            menuRunning = false;
+                        } else if (startChosen) {
+                            printf("Start the game\n");
+                            gameRunning = true;
+                            menuRunning = false;
                         }
                     }; break;
                 }   
@@ -114,6 +138,35 @@ int main() {
         }
 
         SDL_RenderPresent(renderer);
+
+    }
+
+
+    while (gameRunning) {
+
+        while (SDL_PollEvent(&event)) {
+            if (event.type == SDL_QUIT) {
+                gameRunning = false;
+            } 
+
+            if (event.type == SDL_KEYDOWN) {                
+                switch(event.key.keysym.sym) {
+                    
+                }   
+            }
+        }
+        
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer); //Clear the current render buffer
+
+        //Now draw your game scene (e.g. Tetris board, pieces, etc.)
+        
+        draw_grid(renderer);
+
+        //Present the new frame
+
+        SDL_RenderPresent(renderer);
+
 
     }
 
