@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define CELL_SIZE 50
 #define ROWS 20
@@ -10,7 +11,37 @@
 int board[ROWS][COLS];
 bool hasFigure = false;
 
+void generateSquare() {
+    board[0][5] = 1;
+    board[0][4] = 1;
+    board[1][5] = 1;
+    board[1][4] = 1;
+}
+
+void generateStick() {
+    board[0][3] = 1;
+    board[0][4] = 1;
+    board[0][5] = 1;
+    board[0][6] = 1;
+}
+
+void generateZ() {
+    board[0][4] = 1;
+    board[0][5] = 1;
+    board[1][5] = 1;
+    board[1][6] = 1;
+}
+
+void generateTriangle() {
+    board[0][5] = 1;
+    board[1][4] = 1;
+    board[1][5] = 1;
+    board[1][6] = 1;
+}
+
 void moveFigure() {
+
+    srand(time(NULL));
 
     if (hasFigure) {
 
@@ -30,11 +61,7 @@ void moveFigure() {
         }
 
         if (count) {
-
             for (int i = 0; i < 4; i++) {
-
-                printf("%d %d\n", figureRowPos[i], figureColPos[i]);
-
                 if (figureRowPos[i] + 1 >= ROWS) {
                     hasFigure = false;
                     return;
@@ -52,10 +79,17 @@ void moveFigure() {
             }
         }
 
-        board[0][5] = 1;
-        board[0][4] = 1;
-        board[1][5] = 1;
-        board[1][4] = 1;
+        int figureNumber = rand() % 4;
+        printf("%d\n", figureNumber);
+
+        switch(figureNumber) {
+            case 0: generateSquare(); break;
+            case 1: generateStick(); break;
+            case 2: generateZ(); break;
+            case 3: generateTriangle(); break; 
+        }
+
+
         hasFigure = true;
     }
 }
