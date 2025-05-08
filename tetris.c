@@ -11,6 +11,54 @@
 int board[ROWS][COLS];
 bool hasFigure = false;
 
+void moveLeft() {
+
+        int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        int figureColor;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j]) {
+                    figureColor = board[i][j];
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    count++;
+                    board[i][j] = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            board[figureRowPos[i]][figureColPos[i] - 1] = figureColor;
+        } 
+}
+
+void moveRight() {
+
+    int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        int figureColor;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j]) {
+                    figureColor = board[i][j];
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    count++;
+                    board[i][j] = 0;
+                }
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            board[figureRowPos[i]][figureColPos[i] + 1] = figureColor;
+        } 
+}
+
 void generateSquare() {
     board[0][5] = 1;
     board[0][4] = 1;
@@ -263,7 +311,8 @@ int main() {
 
             if (event.type == SDL_KEYDOWN) {                
                 switch(event.key.keysym.sym) {
-                    
+                    case SDLK_LEFT: moveLeft(); break;
+                    case SDLK_RIGHT: moveRight(); break;
                 }   
             }
         }
