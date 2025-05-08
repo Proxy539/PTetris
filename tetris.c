@@ -7,19 +7,38 @@
 #define ROWS 20
 #define COLS 10
 
+int board[ROWS][COLS];
+
+void generate_figure() {
+
+    board[0][5] = 1;
+    board[1][4] = 1;
+    board[1][5] = 1;
+    board[1][6] = 1;
+
+}
+
 void draw_grid(SDL_Renderer *renderer) {
-    //Set grid line color 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+   SDL_Rect cell;
 
-    //Draw vertical lines 
-    for (int i = 0; i <= COLS; i++) {
-        SDL_RenderDrawLine(renderer, i * CELL_SIZE, 0, i * CELL_SIZE, ROWS * CELL_SIZE);
-    }
+   for (int row = 0; row < ROWS; row++) {
+        for (int col = 0; col < COLS; col++) {
 
-    //Draw horizontal lines
-    for (int i = 0; i <= ROWS; i++) {
-        SDL_RenderDrawLine(renderer, 0, i * CELL_SIZE, COLS * CELL_SIZE, i * CELL_SIZE);
-    }
+            cell.x = col * CELL_SIZE;
+            cell.y = row * CELL_SIZE;
+            cell.w = CELL_SIZE;
+            cell.h = CELL_SIZE;
+
+            if (board[row][col]) {
+                SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); //Fill color
+                SDL_RenderFillRect(renderer, &cell);
+            }
+
+            
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); //Border color
+            SDL_RenderDrawRect(renderer, &cell);
+        }
+   }
 }
 
 int main() {
@@ -88,7 +107,6 @@ int main() {
     bool startChosen = true;
     bool exitChosen = false;
 
-
     while (menuRunning) {
 
         while (SDL_PollEvent(&event)) {
@@ -142,6 +160,15 @@ int main() {
     }
 
 
+    if (gameRunning) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                board[i][j] = 0;
+            }
+        }
+    }
+
+
     while (gameRunning) {
 
         while (SDL_PollEvent(&event)) {
@@ -161,6 +188,7 @@ int main() {
 
         //Now draw your game scene (e.g. Tetris board, pieces, etc.)
         
+        generate_figure();
         draw_grid(renderer);
 
         //Present the new frame
