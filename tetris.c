@@ -14,6 +14,11 @@ bool newFigure = false;
 typedef enum { square, stick_horizontal, stick_vertical, z_left, z_up, triangle_up, triangle_right, triangle_buttom, triangle_left} Figure;
 Figure currentFigure;
 
+int score = 0;
+Uint32 moveInterval = 500; //move every 500ms
+int level = 0;
+
+
 void generateSquare() {
     board[0][5] = 1;
     board[0][4] = 1;
@@ -40,6 +45,14 @@ void generateTriangle() {
     board[1][4] = 4;
     board[1][5] = 4;
     board[1][6] = 4;
+}
+
+void checkLevel() {
+    
+    if (score > 0 && (score % 1000 == 0)) {
+        level += 100;
+    }
+    
 }
 
 bool hasFullLine() {
@@ -113,6 +126,9 @@ void checkFullLines() {
                         }
                     }
                 }
+
+                score += 100;
+
 
             }
 }
@@ -600,11 +616,19 @@ int main() {
                 board[i][j] = 0;
             }
         }
+
+        score = 0;
+    
     }
 
     Uint32 lastMoveTime = SDL_GetTicks();
-    const Uint32 moveInterval = 500; //move every 500ms
 
+
+    SDL_Color nextFigureColor = {255, 255, 255, 255};
+    SDL_Surface *nextFigureSurface = TTF_RenderText_Solid(font, "Next", nextFigureColor);
+    SDL_Texture *nextFigureTexture = SDL_CreateTextureFromSurface(renderer, nextFigureSurface);
+    SDL_Rect nextFigureDstrect = {600, 400, 300, 300};
+    SDL_FreeSurface(nextFigureSurface);
 
     while (gameRunning) {
 
@@ -626,16 +650,27 @@ int main() {
 
         //move only if enough time has passed
         Uint32 now = SDL_GetTicks();
-        if (now - lastMoveTime >= moveInterval) {
+        if ((now - lastMoveTime) >= (moveInterval - level)) {
             //Automatice downward movement
             moveDown();
 
             lastMoveTime = now;
         }
+
+        char scoreText[64];
+        sprintf(scoreText, "Score: %d", score);
+        
+        SDL_Color scoreColor = {255, 255, 255, 255};
+        SDL_Surface *scoreSurface = TTF_RenderText_Solid(font, scoreText, scoreColor);
+        SDL_Texture *scoreTexture = SDL_CreateTextureFromSurface(renderer, scoreSurface);
+        SDL_Rect scoreDstrect = {600, 0, 300, 300};
+        SDL_FreeSurface(scoreSurface);
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
+        SDL_RenderCopy(renderer, scoreTexture, NULL, &scoreDstrect);
+        SDL_RenderCopy(renderer, nextFigureTexture, NULL, &nextFigureDstrect);
 
         
         if (checkIfNewFigureNeeded()) {
@@ -645,8 +680,7 @@ int main() {
         draw_grid(renderer);
         checkColision();
         checkFullLines();
-
-        SDL_Delay(10);
+        checkLevel();
 
 
         SDL_RenderPresent(renderer);
