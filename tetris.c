@@ -656,7 +656,7 @@ int main() {
 
         //move only if enough time has passed
         Uint32 now = SDL_GetTicks();
-        if ((now - lastMoveTime) >= (moveInterval - level)) {
+        if ((now - lastMoveTime) >= (moveInterval + level)) {
             //Automatice downward movement
             moveDown();
 
