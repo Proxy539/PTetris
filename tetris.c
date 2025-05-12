@@ -42,6 +42,81 @@ void generateTriangle() {
     board[1][6] = 4;
 }
 
+bool hasFullLine() {
+
+    bool hasFullLine;
+
+    for (int i = 0; i < 20; i++) {
+
+        hasFullLine = true;
+
+        for (int j = 0; j < 10; j++) {
+            if (board[i][j] != -1) {
+                hasFullLine = false;
+            }
+        }
+    }
+
+    return hasFullLine;
+}
+
+int getLineToClear() {
+
+    int lineToClear;
+    bool hasFullLine;
+
+    for (int i = 19; i >= 0; i++) {
+
+        hasFullLine = true;
+
+        for (int j = 0; j < 10; j++) {
+            if (board[i][j] != -1) {
+                hasFullLine = false;
+            }
+        }
+
+
+        if (hasFullLine) {
+            return i;
+        }
+    }
+
+    return lineToClear;
+}
+
+void checkFullLines() {
+
+            while (hasFullLine()) {
+
+                printf("===============================\n");
+                for (int i = 0; i < 20; i++) {
+                    for (int j = 0; j < 10; j++) {
+                        printf("%3d", board[i][j]);
+                    }
+                    printf("\n");
+                }
+
+                int lineToClear = getLineToClear();
+
+                printf("Line to clear %d\n", lineToClear);
+
+                for (int i = 0; i < 10; i++) {
+                    board[lineToClear][i] = 0;
+                }
+
+                for (int i = lineToClear; i >= 0; i--) {
+                    for (int j = 0; j < 10; j++) {
+                        if (board[i][j] == -1) {
+                            int temp = board[i][j];
+                            board[i][j] = board[i + 1][j];
+                            board[i + 1][j] = temp;
+                        }
+                    }
+                }
+
+            }
+}
+
 void rotateFigure() {
 
         int figureRowPos[4] = {0, 0, 0, 0};
@@ -214,7 +289,6 @@ void checkColision() {
         for (int i = 0; i < 4; i++) {
 
             if (board[figureRowPos[i] + 1][figureColPos[i]] == -1) {
-                printf("Collides with the other figure\n");
                 hasCollision = true;
                 break;
             }
@@ -227,7 +301,7 @@ void checkColision() {
 
         if (hasCollision) {
             for (int i = 0; i < 4; i++) {
-                board[figureRowPos[i]][figureColPos[i]] = -1; //lock collided figure
+                board[figureRowPos[i]][figureColPos[i]] = -1;
             }
         }
 }
@@ -252,6 +326,12 @@ void moveLeft() {
 
                     if (j == 0 || j == 9) {
                         hasCollision = true;
+                    }
+
+                    if (i > 0 && i < 19) {
+                        if (board[i][j - 1] == -1 || board[i][j + 1] == -1) {
+                            hasCollision = true;
+                        }
                     }
                 }
             }
@@ -290,6 +370,14 @@ void moveRight() {
                     if (j == 0 || j == 9) {
                         hasCollision = true;
                     }
+
+                    if (i > 0 && i < 19) {
+                        if (board[i][j - 1] == -1 || board[i][j + 1] == -1) {
+                            hasCollision = true;
+                        }
+                    }
+
+                    
                 }
             }
         }
@@ -303,6 +391,41 @@ void moveRight() {
                 board[figureRowPos[i]][figureColPos[i]] = figureColor;
             } 
         }
+}
+
+void fallDown() {
+
+        int figureRowPos[4] = {0, 0, 0, 0};
+        int figureColPos[4] = {0, 0, 0, 0};
+        int count = 0;
+        int figureColor;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j] > 0) {
+                    figureColor = board[i][j];
+                    figureRowPos[count] = i;
+                    figureColPos[count] = j;
+                    count++;
+                    board[i][j] = 0;
+                }
+            }
+        }
+
+
+
+        for (int i = 0; i < 4; i++) {
+            while (board[figureRowPos[i] + 1][figureColPos[i]] != -1 && figureRowPos[i] < 19) {
+                figureRowPos[i]++;
+            }
+
+            board[figureRowPos[i]][figureColPos[i]] = -1;
+        }
+        
+
+
+        
+
 }
 
 void moveDown() {
@@ -502,14 +625,14 @@ int main() {
                     case SDLK_LEFT: moveLeft(); break;
                     case SDLK_RIGHT: moveRight(); break;
                     case SDLK_UP: rotateFigure(); break;
+                    case SDLK_DOWN: fallDown(); break;
                 }   
             }
         }
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        SDL_RenderClear(renderer); //Clear the current render buffer
+        SDL_RenderClear(renderer);
 
-        //Now draw your game scene (e.g. Tetris board, pieces, etc.)
         
         if (checkIfNewFigureNeeded()) {
             generateNewFigure();
@@ -518,10 +641,10 @@ int main() {
         draw_grid(renderer);
         moveDown();
         checkColision();
+        checkFullLines();
 
-        SDL_Delay(200);
+        SDL_Delay(400);
 
-        //Present the new frame
 
         SDL_RenderPresent(renderer);
 
