@@ -324,7 +324,7 @@ void moveLeft() {
                     count++;
                     board[i][j] = 0;
 
-                    if (j == 0 || j == 9) {
+                    if (j == 0) {
                         hasCollision = true;
                     }
 
@@ -337,7 +337,6 @@ void moveLeft() {
             }
         }
 
-
         if (!hasCollision) {
             for (int i = 0; i < 4; i++) {
                 board[figureRowPos[i]][figureColPos[i] - 1] = figureColor;
@@ -345,8 +344,8 @@ void moveLeft() {
         } else {
             for (int i = 0; i < 4; i++) {
                 board[figureRowPos[i]][figureColPos[i]] = figureColor;
-            } 
-        } 
+            }
+        }
 }
 
 void moveRight() {
@@ -367,7 +366,7 @@ void moveRight() {
                     count++;
                     board[i][j] = 0;
 
-                    if (j == 0 || j == 9) {
+                    if (j == 9) {
                         hasCollision = true;
                     }
 
@@ -389,12 +388,11 @@ void moveRight() {
         } else {
             for (int i = 0; i < 4; i++) {
                 board[figureRowPos[i]][figureColPos[i]] = figureColor;
-            } 
+            }
         }
 }
 
 void fallDown() {
-
         int figureRowPos[4] = {0, 0, 0, 0};
         int figureColPos[4] = {0, 0, 0, 0};
         int count = 0;
@@ -412,8 +410,6 @@ void fallDown() {
             }
         }
 
-
-
         for (int i = 0; i < 4; i++) {
             while (board[figureRowPos[i] + 1][figureColPos[i]] != -1 && figureRowPos[i] < 19) {
                 figureRowPos[i]++;
@@ -421,15 +417,9 @@ void fallDown() {
 
             board[figureRowPos[i]][figureColPos[i]] = -1;
         }
-        
-
-
-        
-
 }
 
 void moveDown() {
-
     int figureRowPos[4] = {0, 0, 0, 0};
     int figureColPos[4] = {0, 0, 0, 0};
     int count = 0;
@@ -612,6 +602,9 @@ int main() {
         }
     }
 
+    Uint32 lastMoveTime = SDL_GetTicks();
+    const Uint32 moveInterval = 500; //move every 500ms
+
 
     while (gameRunning) {
 
@@ -629,9 +622,20 @@ int main() {
                 }   
             }
         }
+
+
+        //move only if enough time has passed
+        Uint32 now = SDL_GetTicks();
+        if (now - lastMoveTime >= moveInterval) {
+            //Automatice downward movement
+            moveDown();
+
+            lastMoveTime = now;
+        }
         
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
+
 
         
         if (checkIfNewFigureNeeded()) {
@@ -639,11 +643,10 @@ int main() {
         }
 
         draw_grid(renderer);
-        moveDown();
         checkColision();
         checkFullLines();
 
-        SDL_Delay(400);
+        SDL_Delay(10);
 
 
         SDL_RenderPresent(renderer);
