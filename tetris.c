@@ -13,6 +13,7 @@ bool newFigure = false;
 
 typedef enum { square, stick_horizontal, stick_vertical, z_left, z_up, triangle_up, triangle_right, triangle_buttom, triangle_left} Figure;
 Figure currentFigure;
+Figure nextFigure;
 
 int score = 0;
 Uint32 moveInterval = 500; //move every 500ms
@@ -252,16 +253,19 @@ void rotateFigure() {
         }    
 }
 
-void generateNewFigure() {
+int generateNewFigure(int nextFigure) {
 
-    int figureNumber = rand() % 4;
-
-    switch(figureNumber) {
+    switch(nextFigure) {
         case 0: generateSquare(); currentFigure = square; break;
         case 1: generateStick(); currentFigure = stick_horizontal; break;
         case 2: generateZ(); currentFigure = z_left; break;
         case 3: generateTriangle(); currentFigure = triangle_up; break; 
     }
+
+    int nextFigureNumber = rand() % 4;
+
+    return nextFigureNumber;
+
 }
 
 bool checkIfNewFigureNeeded() {
@@ -630,6 +634,8 @@ int main() {
     SDL_Rect nextFigureDstrect = {600, 400, 300, 300};
     SDL_FreeSurface(nextFigureSurface);
 
+    int nextFigure = 0;
+
     while (gameRunning) {
 
         while (SDL_PollEvent(&event)) {
@@ -673,11 +679,76 @@ int main() {
         SDL_RenderCopy(renderer, nextFigureTexture, NULL, &nextFigureDstrect);
 
         
+        
         if (checkIfNewFigureNeeded()) {
-            generateNewFigure();
+            nextFigure = generateNewFigure(nextFigure);
         }
 
         draw_grid(renderer);
+
+        if (nextFigure == 0) {
+
+                SDL_Rect squareRect1 = {650, 700, 50, 50};
+                SDL_Rect squareRect2 = {700, 700, 50, 50};
+                SDL_Rect squareRect3 = {650, 750, 50, 50};
+                SDL_Rect squareRect4 = {700, 750, 50, 50};
+
+                SDL_SetRenderDrawColor(renderer, 65,251,118, 255);
+
+                SDL_RenderFillRect(renderer, &squareRect1);
+                SDL_RenderFillRect(renderer, &squareRect2);
+                SDL_RenderFillRect(renderer, &squareRect3);
+                SDL_RenderFillRect(renderer, &squareRect4);
+
+
+                //Draw next square 
+            } else if (nextFigure == 1) {
+                
+
+                SDL_Rect stickRect1 = {650, 700, 50, 50};
+                SDL_Rect stickRect2 = {700, 700, 50, 50};
+                SDL_Rect stickRect3 = {750, 700, 50, 50};
+                SDL_Rect stickRect4 = {800, 700, 50, 50};
+
+                SDL_SetRenderDrawColor(renderer, 65,61,255, 255);
+
+                SDL_RenderFillRect(renderer, &stickRect1);
+                SDL_RenderFillRect(renderer, &stickRect2);
+                SDL_RenderFillRect(renderer, &stickRect3);
+                SDL_RenderFillRect(renderer, &stickRect4);
+                //draw next stick
+            } else if (nextFigure == 2) {
+
+                SDL_Rect zRect1 = {650, 700, 50, 50};
+                SDL_Rect zRect2 = {700, 700, 50, 50};
+                SDL_Rect zRect3 = {700, 750, 50, 50};
+                SDL_Rect zRect4 = {750, 750, 50, 50};
+
+                SDL_SetRenderDrawColor(renderer, 254,64,62, 255);
+
+                SDL_RenderFillRect(renderer, &zRect1);
+                SDL_RenderFillRect(renderer, &zRect2);
+                SDL_RenderFillRect(renderer, &zRect3);
+                SDL_RenderFillRect(renderer, &zRect4);
+                //draw next Z
+            } else if (nextFigure == 3) {
+
+                SDL_Rect triangleRect1 = {650, 700, 50, 50};
+                SDL_Rect triangleRect2 = {700, 700, 50, 50};
+                SDL_Rect triangleRect3 = {750, 700, 50, 50};
+                SDL_Rect triangleRect4 = {700, 650, 50, 50};
+
+                SDL_SetRenderDrawColor(renderer, 237,244,72, 255);
+
+                SDL_RenderFillRect(renderer, &triangleRect1);
+                SDL_RenderFillRect(renderer, &triangleRect2);
+                SDL_RenderFillRect(renderer, &triangleRect3);
+                SDL_RenderFillRect(renderer, &triangleRect4);
+                //draw next triangle
+            }
+
+            SDL_RenderPresent(renderer);
+
         checkColision();
         checkFullLines();
         checkLevel();
